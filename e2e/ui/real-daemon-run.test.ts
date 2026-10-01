@@ -394,6 +394,14 @@ test('[P0] local OD Next public canaries project blocked and canceled terminal m
 });
 
 test('[P0] OD Next retired app-config preference preserves the active default and rejects invalid modes atomically', async ({ page }) => {
+  // OD_NEXT_STRATEGY_ROLLOUT outranks everything in resolveRequestedMode
+  // (apps/daemon/src/strategies/od-next/rollout.ts): with it exported the
+  // source is always 'env', so the requestedModeSource: 'default' assertions
+  // below can never hold. This case is about the no-override default.
+  test.skip(
+    Boolean(process.env.OD_NEXT_STRATEGY_ROLLOUT),
+    'the rollout env outranks the default mode by design',
+  );
   const readRollout = async () => {
     const response = await page.request.get('/api/strategies/od-next/rollout');
     expect(response.ok(), await response.text()).toBeTruthy();
